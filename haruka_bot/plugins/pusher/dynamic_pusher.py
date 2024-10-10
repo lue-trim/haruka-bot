@@ -121,6 +121,32 @@ async def dy_sched():
     if dynamic:
         await db.update_user(uid, name)
 
+def get_latest_dynamic(uid):
+    import requests
+    from ...database.db import AuthData
+    auth = AuthData.auth
+    url = "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space"
+    headers = {
+        "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 "
+        "Safari/537.36 Edg/114.0.1823.67",
+    ),}
+    params = {
+        'offset': "0",
+        'host_mid': str(uid),
+        'timezone_offset': -480,
+        }
+
+    # 构建查询体
+    session =requests.session()
+    response = session.get(url=url, headers=headers)
+    data = response.json()['data']
+
+    # 分解参数
+    dynamic_id = data['items'][0]['id_str']
+    update_baseline = data['update_baseline']
+
+    return (dynamic_id, update_baseline)
 
 def dynamic_lisener(event):
     if hasattr(event, "job_id") and event.job_id != "dynamic_sched":
