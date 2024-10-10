@@ -75,7 +75,7 @@ class Version(BaseModel):
     version = CharField(max_length=30)
 
 
-# class Login(BaseModel):
-#     uid = IntField(pk=True)
-#     data = JSONField()
-#     expireed = IntField()
+class Login(BaseModel):
+    uid = IntField(pk=True)
+    # token = JSONField()
+    data = TextField()

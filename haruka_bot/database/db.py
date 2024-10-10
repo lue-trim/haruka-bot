@@ -10,7 +10,7 @@ from tortoise.connection import connections
 
 from ..utils import get_path
 from ..version import VERSION as HBVERSION
-from .models import Group, Guild, Sub, User, Version
+from .models import Group, Guild, Sub, User, Version, Login
 
 uid_list = {"live": {"list": [], "index": 0}, "dynamic": {"list": [], "index": 0}}
 dynamic_offset = {}
@@ -307,15 +307,21 @@ class DB:
         pass
 
     @classmethod
-    async def get_login(cls):
-        """获取登录信息"""
-        pass
+    async def add_login(cls, **kwargs):
+        """添加登录信息"""
+        import json
+        uid = json.loads(kwargs['data'])['uid']
+        data = json.dumps(kwargs['data'])
+        return await Login.add(uid=uid, data=data)
 
     @classmethod
-    async def update_login(cls, tokens):
+    async def update_login(cls, **kwargs):
         """更新登录信息"""
-        pass
+        uid = json.loads(kwargs['data'])['uid']
+        await Login.update({"uid": kwargs['uid']}, data=kwargs['data'])
 
+class AuthData:
+    auth = None
 
 get_driver().on_startup(DB.init)
 get_driver().on_shutdown(DB.close)

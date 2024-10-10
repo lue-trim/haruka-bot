@@ -1,8 +1,11 @@
 from bilireq.exceptions import ResponseCodeError
 from bilireq.user import get_user_info
+from bilireq.auth import WebAuth
 from nonebot.adapters.onebot.v11.event import MessageEvent
 from nonebot.params import ArgPlainText
 from nonebot_plugin_guild_patch import GuildMessageEvent
+
+from pathlib import Path
 
 from ...database import DB as db
 from ...utils import (
@@ -13,6 +16,7 @@ from ...utils import (
     permission_check,
     to_me,
     uid_check,
+    get_path,
 )
 
 add_sub = on_command("关注", aliases={"添加主播"}, rule=to_me(), priority=5)
@@ -32,7 +36,10 @@ async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
     name = user and user.name
     if not name:
         try:
-            name = (await get_user_info(uid, reqtype="web", proxies=PROXIES))["name"]
+            from ...database import AuthData
+            if not AuthData.auth:
+                await add_sub.finish("请先使用sessdata登录")
+            name = (await get_user_info(uid, auth=AuthData.auth, reqtype="web", proxies=PROXIES))["name"]
         except ResponseCodeError as e:
             if e.code in [-400, -404]:
                 await add_sub.finish("UID不存在，注意UID不是房间号")

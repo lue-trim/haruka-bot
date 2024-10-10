@@ -316,6 +316,20 @@ def on_command(cmd, *args, **kwargs):
     return _on_command(plugin_config.haruka_command_prefix + cmd, *args, **kwargs)
 
 
+def get_auth():
+    '读取cookies并建立auth'
+    import http.cookiejar, requests.utils
+    import requests, json
+    # 读取cookies
+    session = requests.Session()
+    session.cookies = http.cookiejar.LWPCookieJar()
+    session.cookies.load(filename="/root/Apps/bilibiliLogin/cookies.txt", ignore_discard=True, ignore_expires=True)
+    cookies_dict = requests.utils.dict_from_cookiejar(session.cookies)
+
+    # 读取login data
+    json.load(filename="/root/Apps/bilibiliLogin/loginData.json", encoding='utf-8')
+    
+
 PROXIES = {"all://": plugin_config.haruka_proxy}
 
 require("nonebot_plugin_apscheduler")

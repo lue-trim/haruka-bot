@@ -49,8 +49,8 @@ async def live_sched():
             logger.info(f"检测到开播：{name}（{uid}）")
             live_msg = (
                 f"{name} 开播啦！\n分区：{room_area}\n标题：{title}\n"
-                + MessageSegment.image(cover)
-                + f"\n{url}"
+                #+ MessageSegment.image(cover)
+                #+ f"\n{url}"
             )
         else:  # 下播
             logger.info(f"检测到下播：{name}（{uid}）")
