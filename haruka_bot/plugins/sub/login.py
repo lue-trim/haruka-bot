@@ -26,9 +26,13 @@ async def _(event: MessageEvent):
     from ...database.db import AuthData
     import json
     # 加载数据
+<<<<<<< HEAD
     msg = event.message[0]
     msg = msg['data']
     msg = msg['text']
+=======
+    msg:str = event.message[0]['data']['text']
+>>>>>>> 008462db928901ec712916dbe9e95412e831cafb
     data = msg.split('{', 1)[1] # 切割数据
     data_json = json.loads(data)
 
