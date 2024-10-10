@@ -27,7 +27,7 @@ async def _(event: MessageEvent):
     import json
     # 加载数据
     msg = event.message[0]
-    msg = msg['data']
+    msg = json.loads(msg)['data']
     msg = msg['text']
     data = msg.split('{', 1)[1] # 切割数据
     data_json = json.loads(data)
