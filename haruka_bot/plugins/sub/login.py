@@ -30,7 +30,7 @@ login_action.got("uid", prompt="请输入sessdata")
 @login_action.handle()
 async def _(event: MessageEvent, data: str):
     """保存登录信息"""
-    from ...database import AuthData
+    from ...database.db import AuthData
     import json
     # 加载数据
     data_json = json.loads(data)

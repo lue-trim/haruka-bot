@@ -36,7 +36,7 @@ async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
     name = user and user.name
     if not name:
         try:
-            from ...database import AuthData
+            from ...database.db import AuthData
             if not AuthData.auth:
                 await add_sub.finish("请先使用sessdata登录")
             name = (await get_user_info(uid, auth=AuthData.auth, reqtype="web", proxies=PROXIES))["name"]
