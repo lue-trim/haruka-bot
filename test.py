@@ -9,4 +9,6 @@ def test(a):
         print("finally")
 
 
-print(test(2))
+if __name__ == "__main__":
+    import haruka_bot.plugins.pusher.dynamic_pusher as dynamic
+    print(dynamic.get_latest_dynamic(1950658))

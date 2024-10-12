@@ -139,7 +139,7 @@ def get_latest_dynamic(uid):
 
     # 构建查询体
     session =requests.session()
-    response = session.get(url=url, headers=headers)
+    response = session.get(url=url, headers=headers, params=params)
     data = response.json()['data']
 
     # 分解参数
@@ -156,7 +156,6 @@ def dynamic_lisener(event):
         scheduler.add_job(
             dy_sched, id="dynamic_sched", next_run_time=datetime.now(scheduler.timezone)
         )
-
 
 if plugin_config.haruka_dynamic_interval == 0:
     scheduler.add_listener(
