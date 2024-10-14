@@ -18,8 +18,10 @@ from nonebot.log import logger
 from ...config import plugin_config
 from ...database import DB as db
 from ...database import dynamic_offset as offset
+from ...database.db import AuthData
 from ...utils import get_dynamic_screenshot, safe_send, scheduler
 
+from bilibili_api import user, sync, Credential
 
 async def dy_sched():
     """动态推送"""
@@ -36,20 +38,13 @@ async def dy_sched():
     try:
         # 获取 UP 最新动态列表
         dynamics = (
-            await grpc_get_user_dynamics(
-                uid,
-                timeout=plugin_config.haruka_dynamic_timeout,
-                proxy=plugin_config.haruka_proxy,
-            )
+            await get_latest_dynamic(uid)
         ).list
-    except AioRpcError as e:
-        if e.code() == StatusCode.DEADLINE_EXCEEDED:
-            logger.error(f"爬取动态超时，将在下个轮询中重试：{e.code()} {e.details()}")
-        else:
-            logger.error(f"爬取动态失败：{e.code()} {e.details()}")
-        return
-    except GrpcError as e:
-        logger.error(f"爬取动态失败：{e.code} {e.msg}")
+
+        last_dynamic_id = dynamics[0]['desc']['dynamic_id']
+
+    except Exception as e:
+        logger.error(f"爬取动态失败：{e}")
         return
 
     if not dynamics:  # 没发过动态
@@ -57,26 +52,28 @@ async def dy_sched():
             offset[uid] = 0
         return
     # 更新昵称
-    name = dynamics[0].modules[0].module_author.author.name
+    name = dynamics[0]['card']['user']['name']
 
     if uid not in offset:  # 已删除
         return
     elif offset[uid] == -1:  # 第一次爬取
         if len(dynamics) == 1:  # 只有一条动态
-            offset[uid] = int(dynamics[0].extend.dyn_id_str)
-        else:  # 第一个可能是置顶动态，但置顶也可能是最新一条，所以取前两条的最大值
-            offset[uid] = max(
-                int(dynamics[0].extend.dyn_id_str), int(dynamics[1].extend.dyn_id_str)
-            )
+            offset[uid] = int(last_dynamic_id)
         return
 
     dynamic = None
-    for dynamic in sorted(dynamics, key=lambda x: int(x.extend.dyn_id_str)):  # 动态从旧到新排列
-        dynamic_id = int(dynamic.extend.dyn_id_str)
+    for dynamic in dynamics:
+        # 提取动态信息
+        description = dynamic['card']['item']['description']
+        upload_timestamp = dynamic['card']['item']['upload_time']
+        upload_time = datetime.fromtimestamp(upload_timestamp).strftime(r"%Y/%m/%d %H:%M:%S")
+        dynamic_id = int(dynamic['desc']['dynamic_id'])
+
         if dynamic_id > offset[uid]:
             logger.info(f"检测到新动态（{dynamic_id}）：{name}（{uid}）")
-            image, err = await get_dynamic_screenshot(dynamic_id)
-            url = f"https://t.bilibili.com/{dynamic_id}"
+            '''
+            #image, err = await get_dynamic_screenshot(dynamic_id)
+            #url = f"https://t.bilibili.com/{dynamic_id}"
             if image is None:
                 logger.debug(f"动态不存在，已跳过：{url}")
                 return
@@ -98,12 +95,14 @@ async def dy_sched():
                 DynamicType.av: "发布了新投稿",
                 DynamicType.article: "发布了新专栏",
                 DynamicType.music: "发布了新音频",
-            }
+            }'''
             message = (
-                f"{name} {type_msg.get(dynamic.card_type, type_msg[0])}：\n"
-                + str(f"动态图片可能截图异常：{err}\n" if err else "")
+                f"{name}发布了一条新动态：\n"
+                #+ str(f"动态图片可能截图异常：{err}\n" if err else "")
                 #+ MessageSegment.image(image)
                 #+ f"\n{url}"
+                + f"时间：{upload_time}\n"
+                + f"内容：{description}\n"
             )
 
             push_list = await db.get_push_list(uid, "dynamic")
@@ -121,32 +120,23 @@ async def dy_sched():
     if dynamic:
         await db.update_user(uid, name)
 
-def get_latest_dynamic(uid):
-    import requests
-    from ...database.db import AuthData
-    auth = AuthData.auth
-    url = "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space"
-    headers = {
-        "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 "
-        "Safari/537.36 Edg/114.0.1823.67",
-    ),}
-    params = {
-        'offset': "0",
-        'host_mid': str(uid),
-        'timezone_offset': -480,
-        }
+async def get_latest_dynamic(uid):
+    u = user.User(uid=uid, credential=AuthData.auth)
+    # 用于记录下一次起点
+    offset = 0
+    
+    # 用于存储所有动态
+    dynamics = []
 
-    # 构建查询体
-    session =requests.session()
-    response = session.get(url=url, headers=headers, params=params)
-    data = response.json()['data']
-
-    # 分解参数
-    dynamic_id = data['items'][0]['id_str']
-    update_baseline = data['update_baseline']
-
-    return (dynamic_id, update_baseline)
+    #page = await u.get_dynamics_new(offset=offset)
+    page = await u.get_dynamics(offset=offset)
+    
+    if 'cards' in page:
+        # 若存在 cards 字段（即动态数据），则将该字段列表扩展到 dynamics
+        #print(page)
+        dynamics.extend(page['cards'])
+        
+    return dynamics
 
 def dynamic_lisener(event):
     if hasattr(event, "job_id") and event.job_id != "dynamic_sched":

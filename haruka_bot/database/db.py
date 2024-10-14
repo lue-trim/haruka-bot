@@ -309,16 +309,21 @@ class DB:
     @classmethod
     async def add_login(cls, **kwargs):
         """添加登录信息"""
-        import json
-        uid = json.loads(kwargs['data'])['uid']
-        data = json.dumps(kwargs['data'])
-        return await Login.add(uid=uid, data=data)
+        # 检查有没有现有的
+        if await Login.get(id=1).exists():
+            cls.del_login()
+        
+        # 添加新cookies
+        new_kwargs = {
+            'id': 1,
+            **kwargs
+        }
+        return await Login.add(**new_kwargs)
 
     @classmethod
-    async def update_login(cls, **kwargs):
-        """更新登录信息"""
-        uid = json.loads(kwargs['data'])['uid']
-        await Login.update({"uid": kwargs['uid']}, data=kwargs['data'])
+    async def del_login(cls):
+        """退出登录"""
+        return await Login.delete(id=1)
 
 class AuthData:
     auth = None

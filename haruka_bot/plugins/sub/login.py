@@ -1,5 +1,5 @@
-from bilireq.auth import WebAuth
 from nonebot.adapters.onebot.v11.event import MessageEvent
+from bilibili_api import Credential
 
 from pathlib import Path
 
@@ -31,11 +31,10 @@ async def _(event: MessageEvent):
     msg = msg.data
     msg = msg['text']
     data = '{' + msg.split('{', 1)[1] # 切割数据
-    data_json = json.loads(data)
+    data_dict = json.loads(data)
 
     # 取出参数
-    refresh_token = data_json['token']['tokens']['refresh_token']
-    cookies = data_json['cookie']['cookies']
-    AuthData.auth = WebAuth(auth={"refresh_token": refresh_token, "cookies": cookies})
+    AuthData.auth = Credential(**data_dict)
+    await db.add_login(**data_dict)
 
-    await login_action.finish(f"已保存登录信息: {AuthData.auth}")
+    await login_action.finish(f"已保存登录信息: {data_dict}")

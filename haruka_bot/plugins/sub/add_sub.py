@@ -1,6 +1,6 @@
-from bilireq.exceptions import ResponseCodeError
-from bilireq.user import get_user_info
-from bilireq.auth import WebAuth
+from bilibili_api import user
+from ...database.db import AuthData
+
 from nonebot.adapters.onebot.v11.event import MessageEvent
 from nonebot.params import ArgPlainText
 from nonebot_plugin_guild_patch import GuildMessageEvent
@@ -36,19 +36,13 @@ async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
     name = user and user.name
     if not name:
         try:
-            from ...database.db import AuthData
             if not AuthData.auth:
                 await add_sub.finish("请先使用sessdata登录")
-            name = (await get_user_info(uid, auth=AuthData.auth, reqtype="web", proxies=PROXIES))["name"]
-        except ResponseCodeError as e:
-            if e.code in [-400, -404]:
-                await add_sub.finish("UID不存在，注意UID不是房间号")
-            elif e.code == -412:
-                await add_sub.finish("操作过于频繁IP暂时被风控，请半小时后再尝试")
-            else:
-                await add_sub.finish(
-                    f"未知错误，请联系开发者反馈，错误内容：\n\
-                                    {str(e)}"
+            name = (await get_user_info(uid))["name"]
+        except Exception as e:
+            await add_sub.finish(
+                f"未知错误，错误内容：\n\
+                {str(e)}"
                 )
 
     if isinstance(event, GuildMessageEvent):
@@ -69,3 +63,8 @@ async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
     if result:
         await add_sub.finish(f"已关注 {name}（{uid}）")
     await add_sub.finish(f"{name}（{uid}）已经关注了")
+
+async def get_user_info(uid):
+    '获取用户详情'
+    u = user.User(uid=uid, credential=AuthData.auth)
+    return u.get_user_info_sync()
