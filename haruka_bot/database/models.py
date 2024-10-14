@@ -76,7 +76,7 @@ class Version(BaseModel):
 
 
 class Login(BaseModel):
-    # uid = IntField(pk=True)
+    uid = IntField(pk=True)
     # token = JSONField()
     sessdata = TextField()
     bili_jct = TextField()

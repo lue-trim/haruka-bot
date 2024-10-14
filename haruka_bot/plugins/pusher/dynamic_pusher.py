@@ -26,7 +26,7 @@ from bilibili_api import user, sync, Credential
 async def dy_sched():
     """动态推送"""
     uid = await db.next_uid("dynamic")
-    if not uid:
+    if not uid or not AuthData.auth:
         # 没有订阅先暂停一秒再跳过，不然会导致 CPU 占用过高
         await asyncio.sleep(1)
         return

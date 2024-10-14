@@ -310,20 +310,20 @@ class DB:
     async def add_login(cls, **kwargs):
         """添加登录信息"""
         # 检查有没有现有的
-        if await Login.get(id=1).exists():
+        if await Login.get(uid=1).exists():
             cls.del_login()
         
         # 添加新cookies
         new_kwargs = {
-            'id': 1,
+            'uid': 1,
             **kwargs
         }
-        return await Login.add(**new_kwargs)
+        return await Login.create(**new_kwargs)
 
     @classmethod
     async def del_login(cls):
         """退出登录"""
-        return await Login.delete(id=1)
+        return await Login.delete(uid=1)
 
 class AuthData:
     auth = None
