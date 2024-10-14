@@ -37,9 +37,7 @@ async def dy_sched():
     logger.debug(f"爬取动态 {name}（{uid}）")
     try:
         # 获取 UP 最新动态列表
-        dynamics = (
-            await get_latest_dynamic(uid)
-        ).list
+        dynamics = await get_latest_dynamic(uid)
 
         last_dynamic_id = dynamics[0]['desc']['dynamic_id']
 
