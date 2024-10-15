@@ -40,8 +40,21 @@ async def main():
         'upload_time': upload_time,
     }
 
+async def get_user_info(uid):
+    '获取用户详情'
+    u = user.User(uid=uid, credential=AuthData.auth)
+    return await u.get_user_info()
+
+class AuthData:
+    kwargs = {
+        "sessdata": "2e2c66bd%2C1744089179%2C57a80aa1CjBBfmHT4w5aJOIfKasssK6klgax-OWvPpSMGpppeX239v9TS7RtOkfgSZK551-m-AISVjdvUWFqdHlNVnBfMHVtcDg0TVpTYnBXal9RUGdjWGNuMW1QUl9fYVZSMGNXWmdiaWU4SkdVMENfUzRWOW9nM1JodEpYX1hhM1dCTFF5TG1NaGVrSmJ3IIEC", 
+        "bili_jct": "0075945fd96256417c8bfe0ee8faa577", 
+        "dedeuserid": "313019770", 
+        }
+    auth = Credential(**kwargs)
+
 # 入口
 
 if __name__ == "__main__":
     #import haruka_bot.plugins.pusher.dynamic_pusher as dynamic
-    sync(main())
+    sync(get_user_info(1950658))
