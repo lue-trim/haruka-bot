@@ -43,7 +43,7 @@ async def main():
 async def get_user_info(uid):
     '获取用户详情'
     u = user.User(uid=uid, credential=AuthData.auth)
-    return await u.get_user_info()
+    return await u.get_dynamics()
 
 class AuthData:
     kwargs = {

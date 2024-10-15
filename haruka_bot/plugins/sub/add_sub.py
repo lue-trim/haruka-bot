@@ -7,6 +7,7 @@ from nonebot_plugin_guild_patch import GuildMessageEvent
 
 from pathlib import Path
 
+from ...plugins import dynamic_pusher
 from ...database import DB as db
 from ...utils import (
     PROXIES,
@@ -38,7 +39,7 @@ async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
         try:
             if not AuthData.auth:
                 await add_sub.finish("请先使用sessdata登录")
-            user_info = await get_user_info(uid)
+            user_info = await get_latest_dynamic(uid)[0]['card']['user']
             name = user_info["name"]
         except Exception as e:
             await add_sub.finish(
@@ -66,6 +67,26 @@ async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
     await add_sub.finish(f"{name}（{uid}）已经关注了")
 
 async def get_user_info(uid):
-    '获取用户详情'
+    '获取用户详情(容易被风控)'
     u = user.User(uid=uid, credential=AuthData.auth)
     return await u.get_user_info()
+
+async def get_latest_dynamic(uid):
+    u = user.User(uid=uid, credential=AuthData.auth)
+    # 用于记录下一次起点
+    offset = 0
+    
+    # 用于存储所有动态
+    dynamics = []
+
+    try:
+        page = await u.get_dynamics(offset=offset)
+    except Exception:
+        page = await u.get_dynamics_new(offset=offset)
+    
+    if 'cards' in page:
+        # 若存在 cards 字段（即动态数据），则将该字段列表扩展到 dynamics
+        #print(page)
+        dynamics.extend(page['cards'])
+        
+    return dynamics
