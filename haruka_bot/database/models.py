@@ -82,3 +82,13 @@ class Login(BaseModel):
     bili_jct = TextField()
     dedeuserid = TextField(null=True)
     ac_time_value = TextField(null=True)
+
+    def to_dict(self):
+        '转换成dict'
+        return {
+            "uid": self.uid,
+            "sessdata": self.sessdata,
+            "bili_jct": self.bili_jct,
+            "dedeuserid": self.dedeuserid,
+            "ac_time_value": self.ac_time_value
+        }
