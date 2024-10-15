@@ -48,7 +48,7 @@ class DB:
 
         db_auth = Login.get_or_none(uid=1)
         if db_auth:
-            db_auth_dict = db_auth.values()[0]
+            db_auth_dict = list(db_auth.values())[0]
             AuthData.auth = Credential(**db_auth_dict)
 
     @classmethod
