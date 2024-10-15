@@ -80,5 +80,5 @@ class Login(BaseModel):
     # token = JSONField()
     sessdata = TextField()
     bili_jct = TextField()
-    dedeuserid = TextField()
-    ac_time_value = TextField()
+    dedeuserid = TextField(null=True)
+    ac_time_value = TextField(null=True)

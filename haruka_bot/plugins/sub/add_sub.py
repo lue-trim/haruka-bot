@@ -38,7 +38,8 @@ async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
         try:
             if not AuthData.auth:
                 await add_sub.finish("请先使用sessdata登录")
-            name = (await get_user_info(uid))["name"]
+            user_info = await get_user_info(uid)
+            name = user_info["name"]
         except Exception as e:
             await add_sub.finish(
                 f"未知错误，错误内容：\n\
@@ -67,4 +68,4 @@ async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
 async def get_user_info(uid):
     '获取用户详情'
     u = user.User(uid=uid, credential=AuthData.auth)
-    return u.get_user_info_sync()
+    return await u.get_user_info()

@@ -12,6 +12,8 @@ from ..utils import get_path
 from ..version import VERSION as HBVERSION
 from .models import Group, Guild, Sub, User, Version, Login
 
+from bilibili_api import Credential
+
 uid_list = {"live": {"list": [], "index": 0}, "dynamic": {"list": [], "index": 0}}
 dynamic_offset = {}
 
@@ -43,6 +45,8 @@ class DB:
         await Tortoise.generate_schemas()
         await cls.migrate()
         await cls.update_uid_list()
+
+        AuthData.auth = Credential(**Login.get(uid=1))
 
     @classmethod
     async def close(cls):
