@@ -38,7 +38,7 @@ async def dy_sched():
     try:
         # 获取 UP 最新动态列表
         dynamics = await get_latest_dynamic(uid)
-
+        name = dynamics[0]['desc']['user_profile']["info"]['uname']
         last_dynamic_id = dynamics[0]['desc']['dynamic_id']
 
     except Exception as e:
@@ -50,7 +50,7 @@ async def dy_sched():
             offset[uid] = 0
         return
     # 更新昵称
-    name = dynamics[0]['card']['user']['name']
+    #name = dynamics[0]['card']['user']["name"]
 
     if uid not in offset:  # 已删除
         return

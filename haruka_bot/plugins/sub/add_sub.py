@@ -39,8 +39,8 @@ async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
         try:
             if not AuthData.auth:
                 await add_sub.finish("请先使用sessdata登录")
-            user_info = await get_latest_dynamic(uid)
-            name = user_info[0]['card']['user']["name"]
+            dynamics = await get_latest_dynamic(uid)
+            name = dynamics[0]['desc']['user_profile']["info"]['uname']
         except Exception as e:
             await add_sub.finish(
                 f"未知错误，错误内容：\n\
