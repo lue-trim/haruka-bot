@@ -48,7 +48,7 @@ class DB:
 
         db_auth = Login.get_or_none(uid=1)
         if db_auth:
-            AuthData.auth = Credential(**db_auth)
+            AuthData.auth = Credential(**dict(db_auth))
 
     @classmethod
     async def close(cls):
