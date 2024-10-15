@@ -49,7 +49,7 @@ class DB:
         db_auth = await Login.get_or_none(uid=1)
         if db_auth:
             db_auth_dict = db_auth.to_dict()
-            db_auth_dict.pop('uid', default='')
+            db_auth_dict.pop('uid', '')
             AuthData.auth = Credential(**db_auth_dict)
 
     @classmethod
