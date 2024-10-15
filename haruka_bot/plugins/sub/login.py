@@ -31,7 +31,10 @@ async def _(event: MessageEvent):
     msg = msg.data
     msg = msg['text']
     data = '{' + msg.split('{', 1)[1] # 切割数据
-    data_dict = json.loads(data)
+    try:
+        data_dict = json.loads(data)
+    except Exception as e:
+        await login_action.finish(f"出现错误：{e}")
 
     # 取出参数
     AuthData.auth = Credential(**data_dict)
