@@ -48,7 +48,8 @@ class DB:
 
         db_auth = Login.get_or_none(uid=1)
         if db_auth:
-            AuthData.auth = Credential(**dict(db_auth))
+            db_auth_dict = {field: getattr(db_auth, field) for field in db_auth._meta.fields_map.keys()}
+            AuthData.auth = Credential(**db_auth_dict)
 
     @classmethod
     async def close(cls):
