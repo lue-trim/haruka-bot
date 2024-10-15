@@ -331,7 +331,7 @@ class DB:
     @classmethod
     async def del_login(cls):
         """退出登录"""
-        return await Login.delete(uid=1)
+        return await Login.filter(uid=1).all().delete()
 
 class AuthData:
     auth = None

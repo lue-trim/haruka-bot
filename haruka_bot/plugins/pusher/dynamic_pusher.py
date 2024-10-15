@@ -126,8 +126,10 @@ async def get_latest_dynamic(uid):
     # 用于存储所有动态
     dynamics = []
 
-    #page = await u.get_dynamics_new(offset=offset)
-    page = await u.get_dynamics(offset=offset)
+    try:
+        page = await u.get_dynamics(offset=offset)
+    except Exception:
+        page = await u.get_dynamics_new(offset=offset)
     
     if 'cards' in page:
         # 若存在 cards 字段（即动态数据），则将该字段列表扩展到 dynamics
