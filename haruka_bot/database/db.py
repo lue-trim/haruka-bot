@@ -46,7 +46,9 @@ class DB:
         await cls.migrate()
         await cls.update_uid_list()
 
-        AuthData.auth = Credential(**Login.get(uid=1))
+        db_auth = Login.get_or_none(uid=1)
+        if db_auth:
+            AuthData.auth = Credential(**db_auth)
 
     @classmethod
     async def close(cls):
