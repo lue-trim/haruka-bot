@@ -39,10 +39,10 @@ async def dy_sched():
         # 获取 UP 最新动态列表
         dynamics = await get_latest_dynamic(uid)
         name = dynamics[0]['desc']['user_profile']["info"]['uname']
-        last_dynamic_id = dynamics[0]['desc']['dynamic_id']
+        # last_dynamic_id = dynamics[0]['desc']['dynamic_id']
 
     except Exception as e:
-        logger.error(f"爬取动态失败：{e}")
+        logger.debug(f"爬取动态失败：{e}")
         return
 
     if not dynamics:  # 没发过动态
