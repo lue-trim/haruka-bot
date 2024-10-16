@@ -61,10 +61,14 @@ async def dy_sched():
     dynamic = None
     for dynamic in dynamics:
         # 提取动态信息
-        description = dynamic['card']['item']['description']
-        upload_timestamp = dynamic['card']['item']['upload_time']
-        upload_time = datetime.fromtimestamp(upload_timestamp).strftime(r"%Y/%m/%d %H:%M:%S")
-        dynamic_id = int(dynamic['desc']['dynamic_id'])
+        try:
+            description = dynamic['card']['item']['description']
+            upload_timestamp = dynamic['card']['item']['upload_time']
+            upload_time = datetime.fromtimestamp(upload_timestamp).strftime(r"%Y/%m/%d %H:%M:%S")
+            dynamic_id = int(dynamic['desc']['dynamic_id'])
+        except Exception as e:
+            logger.error(f"加载动态卡片时出现问题：{e}")
+            continue
 
         if dynamic_id > offset[uid]:
             logger.info(f"检测到新动态（{dynamic_id}）：{name}（{uid}）")
