@@ -128,7 +128,7 @@ async def get_latest_dynamic(uid):
     try:
         # 抓动态
         page = await u.get_dynamics(offset=offset)
-
+    except Exception:
         # 刷新cookies
         if await AuthData.auth.check_refresh():
             await AuthData.auth.refresh()
@@ -138,9 +138,9 @@ async def get_latest_dynamic(uid):
                 "ac_time_value": AuthData.auth.ac_time_value,
                 "dedeuserid": AuthData.auth.dedeuserid,
             })
-    except Exception:
+
         page = await u.get_dynamics_new(offset=offset)
-    
+
     if 'cards' in page:
         # 若存在 cards 字段（即动态数据），则将该字段列表扩展到 dynamics
         #print(page)
