@@ -16,7 +16,7 @@ from ...utils import (
 )
 
 logout_action = on_command("退出登录", rule=to_me(), priority=5)
-logout_action.__doc__ = """删除B站鉴权信息"""
+logout_action.__doc__ = """退出登录 （清除B站鉴权信息）"""
 
 logout_action.handle()
 

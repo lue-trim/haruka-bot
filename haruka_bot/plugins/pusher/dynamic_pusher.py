@@ -56,8 +56,7 @@ async def dy_sched():
         return
     elif offset[uid] == -1:  # 第一次爬取
         if len(dynamics) == 1:  # 只有一条动态
-            offset[uid] = int(last_dynamic_id)
-        return
+            return
 
     dynamic = None
     for dynamic in dynamics:
@@ -113,10 +112,10 @@ async def dy_sched():
                     at=bool(sets.at) and plugin_config.haruka_dynamic_at,
                 )
 
+            # 保存并更新信息
             offset[uid] = dynamic_id
-
-    if dynamic:
-        await db.update_user(uid, name)
+            await db.update_user(uid, name)
+            break
 
 async def get_latest_dynamic(uid):
     u = user.User(uid=uid, credential=AuthData.auth)

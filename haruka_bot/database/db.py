@@ -45,6 +45,7 @@ class DB:
         await Tortoise.generate_schemas()
         await cls.migrate()
         await cls.update_uid_list()
+        logger.info(f"dynamic offset: {dynamic_offset}")
 
         db_auth = await Login.get_or_none(uid=1)
         if db_auth:
