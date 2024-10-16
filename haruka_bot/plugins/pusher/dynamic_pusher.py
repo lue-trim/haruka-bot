@@ -127,7 +127,18 @@ async def get_latest_dynamic(uid):
     dynamics = []
 
     try:
+        # 抓动态
         page = await u.get_dynamics(offset=offset)
+
+        # 刷新cookies
+        if await AuthData.auth.check_refresh():
+            await AuthData.auth.refresh()
+            db.add_login({
+                "sessdata": AuthData.auth.sessdata,
+                "bili_jct": AuthData.auth.bili_jct,
+                "ac_time_value": AuthData.auth.ac_time_value,
+                "dedeuserid": AuthData.auth.dedeuserid,
+            })
     except Exception:
         page = await u.get_dynamics_new(offset=offset)
     

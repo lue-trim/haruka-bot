@@ -334,7 +334,7 @@ class DB:
         return await Login.filter(uid=1).all().delete()
 
 class AuthData:
-    auth = None
+    auth:Credential = None
 
 get_driver().on_startup(DB.init)
 get_driver().on_shutdown(DB.close)
