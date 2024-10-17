@@ -174,12 +174,12 @@ def get_dynamic_info(dynamic: dict):
         dtype = "转发动态"
         name = card['user']['uname']
         content = card['item']['content']
-        upload_timestamp = card['item']['timestamp']
+        upload_timestamp = dynamic['desc']['timestamp']
     elif dtype == 2:
         # 图文动态
         dtype = "发布图文动态"
         name = card['user']['name']
-        title = card['item']['title']
+        # title = card['item']['title']
         content = card['item']['description']
         upload_timestamp = card['item']['upload_time']
         images = card['item']['pictures_count']
@@ -188,7 +188,7 @@ def get_dynamic_info(dynamic: dict):
         dtype = "发布纯文字动态"
         name = card['user']['uname']
         content = card['item']['content']
-        upload_timestamp = card['item']['timestamp']
+        upload_timestamp = dynamic['desc']['timestamp']
     elif dtype == 8:
         # 投稿视频
         dtype = "发布视频"
@@ -196,7 +196,7 @@ def get_dynamic_info(dynamic: dict):
         content = card['desc']
         upload_timestamp = card['pubdate']
         title = card['title']
-        images = card['video']
+        images = card['videos']
     elif dtype == 64:
         # 投稿专栏
         dtype = "发布专栏"
