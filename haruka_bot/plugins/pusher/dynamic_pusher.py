@@ -38,8 +38,6 @@ async def dy_sched():
     try:
         # 获取 UP 最新动态列表
         dynamics = await get_latest_dynamic(uid)
-        name = dynamics[0]['desc']['user_profile']["info"]['uname']
-        # last_dynamic_id = dynamics[0]['desc']['dynamic_id']
 
     except Exception as e:
         logger.debug(f"爬取动态失败：{e}")
@@ -62,10 +60,14 @@ async def dy_sched():
     for dynamic in dynamics:
         # 提取动态信息
         try:
-            description = dynamic['card']['item']['description']
-            upload_timestamp = dynamic['card']['item']['upload_time']
-            upload_time = datetime.fromtimestamp(upload_timestamp).strftime(r"%Y/%m/%d %H:%M:%S")
-            dynamic_id = int(dynamic['desc']['dynamic_id'])
+            res = get_dynamic_info(dynamic)
+            dynamic_id = res['id'] # 实际是timestamp
+            dtype = res['type']
+            upload_time = res['upload_time']
+            name = res['name']
+            title = res['title']
+            description = res['content']
+            images = res['images']
         except Exception as e:
             logger.error(f"加载动态卡片时出现问题：{e}")
             continue
@@ -98,12 +100,14 @@ async def dy_sched():
                 DynamicType.music: "发布了新音频",
             }'''
             message = (
-                f"{name}发布了一条新动态：\n"
+                f"{name}{dtype}：\n"
                 #+ str(f"动态图片可能截图异常：{err}\n" if err else "")
                 #+ MessageSegment.image(image)
                 #+ f"\n{url}"
-                + f"时间：{upload_time}\n"
-                + f"内容：{description}\n"
+                + f"{title}\n"
+                + f"{description}\n"
+                + f"发布时间：{upload_time}\n"
+                + f"图片/分P数量：{images}\n"
             )
 
             push_list = await db.get_push_list(uid, "dynamic")
@@ -151,6 +155,73 @@ async def get_latest_dynamic(uid):
         dynamics.extend(page['cards'])
         
     return dynamics
+
+def get_dynamic_info(dynamic: dict):
+    '根据动态类型返回不同解析值'
+    dtype = dynamic['desc']['type']
+    card = dynamic['card']
+
+    # 对不一定存在的项目初始化
+    images = 0
+    title = ""
+    '''if dtype < 8:
+        id = dynamic['desc']['dynamic_id']
+    else:
+        id = -1'''
+
+    if dtype == 1:
+        # 转发
+        dtype = "转发动态"
+        name = card['user']['uname']
+        content = card['item']['content']
+        upload_timestamp = card['item']['timestamp']
+    elif dtype == 2:
+        # 图文动态
+        dtype = "发布图文动态"
+        name = card['user']['name']
+        title = card['item']['title']
+        content = card['item']['description']
+        upload_timestamp = card['item']['upload_time']
+        images = card['item']['pictures_count']
+    elif dtype == 4:
+        # 文字动态
+        dtype = "发布纯文字动态"
+        name = card['user']['uname']
+        content = card['item']['content']
+        upload_timestamp = card['item']['timestamp']
+    elif dtype == 8:
+        # 投稿视频
+        dtype = "发布视频"
+        name = card['owner']['name']
+        content = card['desc']
+        upload_timestamp = card['pubdate']
+        title = card['title']
+        images = card['video']
+    elif dtype == 64:
+        # 投稿专栏
+        dtype = "发布专栏"
+        name = card['author']['name']
+        content = card['summary']
+        upload_timestamp = card['publish_time']
+        title = card['title']
+    elif dtype == 256:
+        # 投稿音频
+        dtype = "发布音频"
+        name = card['upper']
+        content = card['intro']
+        upload_timestamp = card['ctime'] // 1000 # 音频的时间戳多3个0
+        title = card['title']
+
+    upload_time = datetime.fromtimestamp(upload_timestamp).strftime(r"%Y/%m/%d %H:%M:%S")
+    return {
+        'id': upload_timestamp, # 用时间戳代替动态id
+        'type': dtype,
+        'upload_time': upload_time,
+        'name': name,
+        'title': title,
+        'content': content,
+        'images': images
+    }
 
 def dynamic_lisener(event):
     if hasattr(event, "job_id") and event.job_id != "dynamic_sched":
