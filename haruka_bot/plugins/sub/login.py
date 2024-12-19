@@ -16,7 +16,7 @@ from ...utils import (
 )
 
 login_action = on_command("登录", rule=to_me(), priority=5)
-login_action.__doc__ = """登录 <cookies> \
+login_action.__doc__ = """!该接口已弃用 登录 <cookies> \
     （用于B站相关API鉴权，cookies格式需为包含sessdata/dedeuserid/ac_time_value/bili_jct几个字段的json）"""
 
 login_action.handle()
