@@ -7,6 +7,7 @@ from apscheduler.events import (
     EVENT_JOB_MISSED,
     EVENT_SCHEDULER_STARTED,
 )
+import requests.auth
 from bilireq.exceptions import GrpcError
 from bilireq.grpc.dynamic import grpc_get_user_dynamics
 from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2 import DynamicType
@@ -36,11 +37,21 @@ async def dy_sched():
 
     logger.debug(f"爬取动态 {name}（{uid}）")
     try:
+        # 获取cookies
+        if plugin_config.blrec_url:
+            cookies = get_cookies(plugin_config.blrec_url, plugin_config.blrec_user, plugin_config.blrec_passwd)
+            credential = Credential(
+                sessdata=cookies['sessdata'], 
+                bili_jct=cookies['bili_jct'], 
+                dedeuserid=cookies['dedeuserid']
+                )
+        else:
+            credential = Credential()
         # 获取 UP 最新动态列表
-        dynamics = await get_latest_dynamic(uid)
+        dynamics = await get_latest_dynamic(uid, credential)
 
     except Exception as e:
-        logger.debug(f"爬取动态失败：{e}")
+        logger.error(f"爬取动态失败：{e}")
         return
 
     if not dynamics:  # 没发过动态
@@ -125,15 +136,16 @@ async def dy_sched():
             await db.update_user(uid, name)
             break
 
-async def get_latest_dynamic(uid):
-    u = user.User(uid=uid, credential=AuthData.auth)
+async def get_latest_dynamic(uid, credential):
+    u = user.User(uid=uid, credential=credential)
     # 用于记录下一次起点
     offset = 0
     
     # 用于存储所有动态
     dynamics = []
 
-    try:
+    page = await u.get_dynamics(offset=offset)
+    '''try:
         # 抓动态
         page = await u.get_dynamics(offset=offset)
     except Exception:
@@ -147,7 +159,7 @@ async def get_latest_dynamic(uid):
                 "dedeuserid": AuthData.auth.dedeuserid,
             })
 
-        page = await u.get_dynamics_new(offset=offset)
+        page = await u.get_dynamics_new(offset=offset)'''
 
     if 'cards' in page:
         # 若存在 cards 字段（即动态数据），则将该字段列表扩展到 dynamics
@@ -155,6 +167,31 @@ async def get_latest_dynamic(uid):
         dynamics.extend(page['cards'])
         
     return dynamics
+
+def get_cookies(blrec_url: str, blrec_user="", blrec_passwd=""):
+    '从blrec抓取cookies'    
+    import requests
+    from requests.auth import HTTPBasicAuth
+    # 通过api获取
+    url = f"{blrec_url}/api/v1/settings"
+    headers = {
+        'content-type': 'application/json', 
+        }
+
+    params = {
+        'include': 'header'
+        }
+
+    response = requests.get(url, params=params, headers=headers, auth=HTTPBasicAuth(username=blrec_user, password=blrec_passwd))
+    res_json = response.json()
+    #print(res_json)
+    cookies_str = res_json['header']['cookie']
+
+    # 分割参数
+    cookies_strs = cookies_str.split(';')
+    cookies_dict = {i.split('=')[0].lower():i.split('=')[1] for i in cookies_strs}
+
+    return cookies_dict
 
 def get_dynamic_info(dynamic: dict):
     '根据动态类型返回不同解析值'
