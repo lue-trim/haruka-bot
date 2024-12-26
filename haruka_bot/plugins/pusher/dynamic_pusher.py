@@ -7,7 +7,6 @@ from apscheduler.events import (
     EVENT_JOB_MISSED,
     EVENT_SCHEDULER_STARTED,
 )
-import requests.auth
 from bilireq.exceptions import GrpcError
 from bilireq.grpc.dynamic import grpc_get_user_dynamics
 from bilireq.grpc.protos.bilibili.app.dynamic.v2.dynamic_pb2 import DynamicType
@@ -19,7 +18,7 @@ from nonebot.log import logger
 from ...config import plugin_config
 from ...database import DB as db
 from ...database import dynamic_offset as offset
-from ...database.db import AuthData
+#from ...database.db import AuthData
 from ...utils import get_dynamic_screenshot, safe_send, scheduler
 
 from bilibili_api import user, sync, Credential
@@ -27,7 +26,8 @@ from bilibili_api import user, sync, Credential
 async def dy_sched():
     """动态推送"""
     uid = await db.next_uid("dynamic")
-    if not uid or not AuthData.auth:
+    #if not uid or not AuthData.auth:
+    if not uid:
         # 没有订阅先暂停一秒再跳过，不然会导致 CPU 占用过高
         await asyncio.sleep(1)
         return
@@ -216,7 +216,7 @@ def get_dynamic_info(dynamic: dict):
         # 图文动态
         dtype = "发布图文动态"
         name = card['user']['name']
-        # title = card['item']['title']
+        # title = card['item']['title'] # TODO: 这个title到底是从哪里抓出来的啊。。
         content = card['item']['description']
         upload_timestamp = card['item']['upload_time']
         images = card['item']['pictures_count']
