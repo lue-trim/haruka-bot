@@ -19,7 +19,7 @@ from ...config import plugin_config
 from ...database import DB as db
 from ...database import dynamic_offset as offset
 #from ...database.db import AuthData
-from ...utils import get_dynamic_screenshot, safe_send, scheduler
+from ...utils import get_dynamic_screenshot, safe_send, scheduler, get_credential
 
 from bilibili_api import user, sync, Credential
 
@@ -38,15 +38,7 @@ async def dy_sched():
     logger.debug(f"爬取动态 {name}（{uid}）")
     try:
         # 获取cookies
-        if plugin_config.blrec_url:
-            cookies = get_cookies(plugin_config.blrec_url, plugin_config.blrec_user, plugin_config.blrec_passwd)
-            credential = Credential(
-                sessdata=cookies['sessdata'], 
-                bili_jct=cookies['bili_jct'], 
-                dedeuserid=cookies['dedeuserid']
-                )
-        else:
-            credential = Credential()
+        credential = get_credential()
         # 获取 UP 最新动态列表
         dynamics = await get_latest_dynamic(uid, credential)
 
@@ -167,31 +159,6 @@ async def get_latest_dynamic(uid, credential):
         dynamics.extend(page['cards'])
         
     return dynamics
-
-def get_cookies(blrec_url: str, blrec_user="", blrec_passwd=""):
-    '从blrec抓取cookies'    
-    import requests
-    from requests.auth import HTTPBasicAuth
-    # 通过api获取
-    url = f"{blrec_url}/api/v1/settings"
-    headers = {
-        'content-type': 'application/json', 
-        }
-
-    params = {
-        'include': 'header'
-        }
-
-    response = requests.get(url, params=params, headers=headers, auth=HTTPBasicAuth(username=blrec_user, password=blrec_passwd))
-    res_json = response.json()
-    #print(res_json)
-    cookies_str = res_json['header']['cookie']
-
-    # 分割参数
-    cookies_strs = cookies_str.split(';')
-    cookies_dict = {i.split('=')[0].lower():i.split('=')[1] for i in cookies_strs}
-
-    return cookies_dict
 
 def get_dynamic_info(dynamic: dict):
     '根据动态类型返回不同解析值'

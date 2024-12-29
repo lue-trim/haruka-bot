@@ -328,7 +328,50 @@ def get_auth():
 
     # 读取login data
     json.load(filename="/root/Apps/bilibiliLogin/loginData.json", encoding='utf-8')
-    
+
+### 用户验证相关
+def get_cookies(blrec_url: str, blrec_user="", blrec_passwd=""):
+    '从blrec抓取cookies'    
+    import requests
+    from requests.auth import HTTPBasicAuth
+    # 通过api获取
+    url = f"{blrec_url}/api/v1/settings"
+    headers = {
+        'content-type': 'application/json', 
+        }
+
+    params = {
+        'include': 'header'
+        }
+
+    response = requests.get(url, params=params, headers=headers, auth=HTTPBasicAuth(username=blrec_user, password=blrec_passwd))
+    res_json = response.json()
+    #print(res_json)
+    cookies_str = res_json['header']['cookie']
+
+    # 分割参数
+    cookies_strs = cookies_str.split(';')
+    cookies_dict = {i.split('=')[0].lower():i.split('=')[1] for i in cookies_strs}
+
+    return cookies_dict
+
+
+def get_credential():
+    '获取认证信息'
+    from bilibili_api import Credential
+    # 获取cookies
+    if plugin_config.blrec_url:
+        cookies = get_cookies(plugin_config.blrec_url, plugin_config.blrec_user, plugin_config.blrec_passwd)
+        credential = Credential(
+            sessdata=cookies['sessdata'], 
+            bili_jct=cookies['bili_jct'], 
+            dedeuserid=cookies['dedeuserid']
+            )
+    else:
+        credential = Credential()
+
+    return credential
+
 
 PROXIES = {"all://": plugin_config.haruka_proxy}
 

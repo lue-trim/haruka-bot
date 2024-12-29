@@ -1,5 +1,4 @@
 from bilibili_api import user
-from ...database.db import AuthData
 
 from nonebot.adapters.onebot.v11.event import MessageEvent
 from nonebot.params import ArgPlainText
@@ -8,6 +7,7 @@ from nonebot_plugin_guild_patch import GuildMessageEvent
 from pathlib import Path
 
 from ...plugins import dynamic_pusher
+from ...config import plugin_config
 from ...database import DB as db
 from ...utils import (
     PROXIES,
@@ -18,6 +18,7 @@ from ...utils import (
     to_me,
     uid_check,
     get_path,
+    get_credential,
 )
 
 add_sub = on_command("关注", aliases={"添加主播"}, rule=to_me(), priority=5)
@@ -37,8 +38,6 @@ async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
     name = user and user.name
     if not name:
         try:
-            if not AuthData.auth:
-                await add_sub.finish("请先使用sessdata登录")
             dynamics = await get_latest_dynamic(uid)
             name = dynamics[0]['desc']['user_profile']["info"]['uname']
         except Exception as e:
@@ -68,11 +67,11 @@ async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
 
 async def get_user_info(uid):
     '获取用户详情(容易被风控)'
-    u = user.User(uid=uid, credential=AuthData.auth)
+    u = user.User(uid=uid, credential=get_credential())
     return await u.get_user_info()
 
 async def get_latest_dynamic(uid):
-    u = user.User(uid=uid, credential=AuthData.auth)
+    u = user.User(uid=uid, credential=get_credential())
     # 用于记录下一次起点
     offset = 0
     
