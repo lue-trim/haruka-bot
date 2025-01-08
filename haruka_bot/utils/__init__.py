@@ -350,6 +350,8 @@ def get_cookies(blrec_url: str, blrec_user="", blrec_passwd=""):
     cookies_str = res_json['header']['cookie']
 
     # 分割参数
+    if cookies_str.endswith(';'):
+        cookies_str = cookies_str[:-1]
     cookies_strs = cookies_str.split(';')
     cookies_dict = {i.split('=')[0].lower():i.split('=')[1] for i in cookies_strs}
 
