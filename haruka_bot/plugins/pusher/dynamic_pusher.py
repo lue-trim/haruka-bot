@@ -1,4 +1,4 @@
-import asyncio
+import asyncio, traceback, functools
 from datetime import datetime
 
 from apscheduler.events import (
@@ -50,8 +50,10 @@ async def dy_sched():
         # 获取 UP 最新动态列表
         dynamics = await get_latest_dynamic(uid, credential)
 
-    except Exception as e:
-        logger.error(f"爬取动态失败：{e}")
+    except Exception:
+        exc_list = traceback.format_exception()
+        exc_str = functools.reduce(lambda x,y:x+y, exc_list)
+        logger.error(f"爬取动态失败：{exc_str}")
         return
 
     if not dynamics:  # 没发过动态
