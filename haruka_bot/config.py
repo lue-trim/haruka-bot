@@ -9,6 +9,7 @@ from pydantic.fields import ModelField
 # 其他地方出现的类似 from .. import config，均是从 __init__.py 导入的 Config 实例
 class Config(BaseSettings):
     fastapi_reload: bool = False
+    messenger_url: str = ""
     blrec_url: str = ""
     blrec_user: str = ""
     blrec_passwd: str = ""

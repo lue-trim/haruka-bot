@@ -34,17 +34,21 @@ add_sub.got("uid", prompt="请输入要关注的UID")(uid_check)
 @add_sub.handle()
 async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
     """根据 UID 订阅 UP 主"""
-    user = await db.get_user(uid=uid)
-    name = user and user.name
-    if not name:
-        try:
-            dynamics = await get_latest_dynamic(uid)
-            name = dynamics[0]['desc']['user_profile']["info"]['uname']
-        except Exception as e:
-            await add_sub.finish(
-                f"未知错误，错误内容：\n\
-                {str(e)}"
-                )
+    if uid == -1:
+        # 订阅管理消息
+        name = "bot后台通知消息"
+    else:
+        user = await db.get_user(uid=uid)
+        name = user and user.name
+        if not name:
+            try:
+                dynamics = await get_latest_dynamic(uid)
+                name = dynamics[0]['desc']['user_profile']["info"]['uname']
+            except Exception as e:
+                await add_sub.finish(
+                    f"未知错误，错误内容：\n\
+                    {str(e)}"
+                    )
 
     if isinstance(event, GuildMessageEvent):
         await db.add_guild(

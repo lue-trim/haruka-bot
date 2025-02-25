@@ -33,6 +33,7 @@ from ..config import plugin_config
 require("nonebot_plugin_guild_patch")
 from nonebot_plugin_guild_patch import ChannelDestroyedNoticeEvent, GuildMessageEvent  # noqa
 
+import traceback, functools
 
 def get_path(*other):
     """获取数据文件绝对路径"""
@@ -374,6 +375,26 @@ def get_credential():
 
     return credential
 
+
+### 给管理员发送消息通知
+async def send_admin(message, listen_type="dynamic"):
+    '给订阅了动态的管理员发送报错信息'
+    from ..database import DB as db
+    try:
+        push_list = await db.get_push_list(-1, listen_type)
+        for sets in push_list:
+            await safe_send(
+                bot_id=sets.bot_id,
+                send_type=sets.type,
+                type_id=sets.type_id,
+                message=message,
+                at=bool(sets.at) and plugin_config.haruka_dynamic_at,
+            )
+    except:
+        exc_list = traceback.format_exception()
+        exc_str = functools.reduce(lambda x,y:x+y, exc_list)
+        logger.error(f"爬取动态失败：{exc_str}")
+        send_admin(f"爬取动态失败：{exc_str}")
 
 PROXIES = {"all://": plugin_config.haruka_proxy}
 

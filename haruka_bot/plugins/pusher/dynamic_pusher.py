@@ -19,7 +19,7 @@ from ...config import plugin_config
 from ...database import DB as db
 from ...database import dynamic_offset as offset
 #from ...database.db import AuthData
-from ...utils import get_dynamic_screenshot, safe_send, scheduler, get_credential
+from ...utils import get_dynamic_screenshot, safe_send, scheduler, get_credential, send_admin
 
 from bilibili_api import user, sync, Credential
 
@@ -27,7 +27,7 @@ async def dy_sched():
     """动态推送"""
     uid = await db.next_uid("dynamic")
     #if not uid or not AuthData.auth:
-    if not uid:
+    if not uid or uid == -1:
         # 没有订阅先暂停一秒再跳过，不然会导致 CPU 占用过高
         await asyncio.sleep(1)
         return
@@ -46,6 +46,7 @@ async def dy_sched():
         exc_list = traceback.format_exception()
         exc_str = functools.reduce(lambda x,y:x+y, exc_list)
         logger.error(f"爬取动态失败：{exc_str}")
+        send_admin(f"爬取动态失败：{exc_str}")
         return
 
     if not dynamics:  # 没发过动态
@@ -177,13 +178,13 @@ def get_dynamic_info(dynamic: dict):
 
     if dtype == 1:
         # 转发
-        dtype = "转发动态"
+        dtype = "转发了一条动态"
         name = card['user']['uname']
         content = card['item']['content']
         upload_timestamp = dynamic['desc']['timestamp']
     elif dtype == 2:
         # 图文动态
-        dtype = "发布图文动态"
+        dtype = "更新了一条图文动态"
         name = card['user']['name']
         # title = card['item']['title'] # TODO: 这个title到底是从哪里抓出来的啊。。
         content = card['item']['description']
@@ -191,13 +192,13 @@ def get_dynamic_info(dynamic: dict):
         images = card['item']['pictures_count']
     elif dtype == 4:
         # 文字动态
-        dtype = "发布纯文字动态"
+        dtype = "更新了一条纯文字动态"
         name = card['user']['uname']
         content = card['item']['content']
         upload_timestamp = dynamic['desc']['timestamp']
     elif dtype == 8:
         # 投稿视频
-        dtype = "发布视频"
+        dtype = "发布了一个新视频"
         name = card['owner']['name']
         content = card['desc']
         upload_timestamp = card['pubdate']
@@ -205,14 +206,14 @@ def get_dynamic_info(dynamic: dict):
         images = card['videos']
     elif dtype == 64:
         # 投稿专栏
-        dtype = "发布专栏"
+        dtype = "发布了一篇专栏"
         name = card['author']['name']
         content = card['summary']
         upload_timestamp = card['publish_time']
         title = card['title']
     elif dtype == 256:
         # 投稿音频
-        dtype = "发布音频"
+        dtype = "发布了一段音频"
         name = card['upper']
         content = card['intro']
         upload_timestamp = card['ctime'] // 1000 # 音频的时间戳多3个0
