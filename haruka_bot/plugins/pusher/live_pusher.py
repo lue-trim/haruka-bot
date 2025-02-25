@@ -108,7 +108,7 @@ def get_blrec_msg():
         }
 
     params = {
-        'include': 'header'
+        'type': 'all'
         }
 
     response = requests.get(url, params=params, headers=headers, auth=HTTPBasicAuth(username=blrec_user, password=blrec_passwd))
