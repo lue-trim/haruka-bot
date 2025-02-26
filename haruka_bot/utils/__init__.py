@@ -97,6 +97,9 @@ async def search_user(keyword: str):
 
 
 async def uid_extract(text: str):
+    if text == "-1":
+        # 处理管理员订阅id
+        return text
     logger.debug(f"[UID Extract] Original Text: {text}")
     b23_msg = await b23_extract(text) if "b23.tv" in text else None
     message = b23_msg or text
