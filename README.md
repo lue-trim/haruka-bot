@@ -3,8 +3,13 @@
 避免QQ机器人发不出去
 ## 修改动态接口鉴权方式
 改成从blrec处自动获取cookies  
-（在`.env.prod`中设置`BLREC_URL`、`BLREC_PASSWD`、`BLREC_USER`三个参数，后两者用于设置了BasicHTTPAuth鉴权的网站，可以留空）
+- 在`.env.prod`中设置`BLREC_URL`、`BLREC_PASSWD`、`BLREC_USER`三个参数，后两者用于设置了BasicHTTPAuth鉴权的网站，可以留空
+## blrec消息推送接口
+在消息列表中订阅“-1”即可接收blrec后台发送的上下播、录播异常、空间不足等通知（需要使用[rec-messenger](https://github.com/lue-trim/rec-messenger)作为中转）  
+- 在`.env.prod`中设置`MESSENGER_URL`参数即可指定从messenger获取推送消息  
+- messenger的具体设置方法参见[README](https://github.com/lue-trim/rec-messenger/README.md)
 
+---
 [![HarukaBot](https://socialify.git.ci/SK-415/HarukaBot/image?description=1&font=Source%20Code%20Pro&forks=1&issues=1&language=1&logo=https%3A%2F%2Fraw.githubusercontent.com%2FSK-415%2FHarukaBot%2Fmaster%2Fdocs%2F.vuepress%2Fpublic%2Flogo.png&owner=1&pattern=Charlie%20Brown&stargazers=1&theme=Dark)](https://haruka-bot.sk415.icu/)
 
 # [HarukaBot](https://haruka-bot.sk415.icu)——优雅的 B 站推送 QQ 机器人
