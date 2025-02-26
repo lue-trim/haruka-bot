@@ -34,7 +34,7 @@ add_sub.got("uid", prompt="请输入要关注的UID")(uid_check)
 @add_sub.handle()
 async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
     """根据 UID 订阅 UP 主"""
-    if uid == -1:
+    if uid == "-1":
         # 订阅管理消息
         name = "bot后台通知消息"
     else:

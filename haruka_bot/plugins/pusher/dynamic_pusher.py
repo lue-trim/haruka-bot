@@ -1,4 +1,4 @@
-import asyncio, traceback, functools
+import asyncio, traceback, functools, re
 from datetime import datetime
 
 from apscheduler.events import (
@@ -115,6 +115,10 @@ async def dy_sched():
                 + f"发布时间：{upload_time}\n"
                 + f"图片/分P数量：{images}\n"
             )
+
+            # 合规性处理（去除消息中的链接）
+            sr = re.compile(r"\b((?:https?|http):\/\/)?[\w\-_]+\.[\w\-_\.]+\b")
+            message = re.sub(sr, "<url>", message)
 
             push_list = await db.get_push_list(uid, "dynamic")
             for sets in push_list:
