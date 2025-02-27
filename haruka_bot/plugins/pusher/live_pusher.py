@@ -30,11 +30,9 @@ async def live_sched():
             msg = get_blrec_msg()
             if msg:
                 await send_admin(message=msg, listen_type="live")
-        except:
-            exc_list = traceback.format_exception()
-            exc_str = functools.reduce(lambda x,y:x+y, exc_list)
-            logger.error(f"获取录播消息失败：{exc_str}")
-            send_admin(f"获取录播消息失败：{exc_str}")
+        except Exception as e:
+            logger.error(f"获取录播消息失败：{e}")
+            send_admin(f"获取录播消息失败：{e}")
 
     if not uids:  # 订阅为空
         return

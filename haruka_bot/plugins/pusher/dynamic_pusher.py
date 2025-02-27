@@ -42,11 +42,9 @@ async def dy_sched():
         # 获取 UP 最新动态列表
         dynamics = await get_latest_dynamic(uid, credential)
 
-    except Exception:
-        exc_list = traceback.format_exception()
-        exc_str = functools.reduce(lambda x,y:x+y, exc_list)
-        logger.error(f"爬取动态失败：{exc_str}")
-        send_admin(f"爬取动态失败：{exc_str}")
+    except Exception as e:
+        logger.error(f"爬取动态失败：{e}")
+        send_admin(f"爬取动态失败：{e}")
         return
 
     if not dynamics:  # 没发过动态
@@ -76,6 +74,7 @@ async def dy_sched():
             images = res['images']
         except Exception as e:
             logger.error(f"加载动态卡片时出现问题：{e}")
+            send_admin(f"加载动态卡片时出现问题：{e}")
             continue
 
         if dynamic_id > offset[uid]:
