@@ -395,9 +395,10 @@ async def send_admin(message, listen_type="dynamic"):
             )
     except:
         exc_list = traceback.format_exception()
-        exc_str = functools.reduce(lambda x,y:x+y, exc_list)
+        # exc_str = functools.reduce(lambda x,y:x+y, exc_list)
+        exc_str = "".join(exc_list)
         logger.error(f"爬取动态失败：{exc_str}")
-        send_admin(f"爬取动态失败：{exc_str}")
+        # send_admin(f"爬取动态失败：{exc_str}")
 
 PROXIES = {"all://": plugin_config.haruka_proxy}
 
