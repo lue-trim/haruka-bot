@@ -32,7 +32,7 @@ async def live_sched():
                 await send_admin(message=msg, listen_type="live")
         except Exception as e:
             logger.error(f"获取录播消息失败：{e}")
-            send_admin(f"获取录播消息失败：{e}")
+            await send_admin(f"获取录播消息失败：{e}")
 
     if not uids:  # 订阅为空
         return

@@ -43,8 +43,8 @@ async def dy_sched():
         dynamics = await get_latest_dynamic(uid, credential)
 
     except Exception as e:
-        logger.error(f"爬取动态失败：{e}")
-        await send_admin(f"爬取动态失败：{e}")
+        logger.error(f"爬取动态失败：{traceback.format_exc()}")
+        await send_admin(f"爬取动态失败：{traceback.format_exc()}")
         return
 
     if not dynamics:  # 没发过动态
@@ -73,8 +73,8 @@ async def dy_sched():
             description = res['content']
             images = res['images']
         except Exception as e:
-            logger.error(f"加载动态卡片时出现问题：{e}")
-            await send_admin(f"加载动态卡片时出现问题：{e}")
+            logger.error(f"加载动态卡片时出现问题：{traceback.format_exc()}")
+            await send_admin(f"加载动态卡片时出现问题：{traceback.format_exc()}")
             continue
 
         if dynamic_id > offset[uid]:
@@ -142,12 +142,13 @@ async def get_latest_dynamic(uid, credential):
     # 用于存储所有动态
     dynamics = []
 
-    page = await u.get_dynamics(offset=offset)
-    '''try:
+    #page = await u.get_dynamics(offset=offset)
+    try:
         # 抓动态
-        page = await u.get_dynamics(offset=offset)
+        page = await u.get_dynamics_new(offset=offset)
     except Exception:
-        # 刷新cookies
+        page = await u.get_dynamics(offset=offset)
+        '''# 刷新cookies
         if await AuthData.auth.check_refresh():
             await AuthData.auth.refresh()
             db.add_login({
@@ -157,12 +158,14 @@ async def get_latest_dynamic(uid, credential):
                 "dedeuserid": AuthData.auth.dedeuserid,
             })
 
-        page = await u.get_dynamics_new(offset=offset)'''
+        '''
 
-    if 'cards' in page:
+    if page['cards'] is not None:
         # 若存在 cards 字段（即动态数据），则将该字段列表扩展到 dynamics
         #print(page)
         dynamics.extend(page['cards'])
+    else:
+        logger.error("抓取动态数据为空")
         
     return dynamics
 

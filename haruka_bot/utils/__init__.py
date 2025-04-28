@@ -35,6 +35,8 @@ from nonebot_plugin_guild_patch import ChannelDestroyedNoticeEvent, GuildMessage
 
 import traceback, functools
 
+last_msg = ""
+
 def get_path(*other):
     """获取数据文件绝对路径"""
     if plugin_config.haruka_dir:
@@ -357,7 +359,16 @@ def get_cookies(blrec_url: str, blrec_user="", blrec_passwd=""):
     if cookies_str.endswith(';'):
         cookies_str = cookies_str[:-1]
     cookies_strs = cookies_str.split(';')
-    cookies_dict = {i.split('=')[0].lower():i.split('=')[1] for i in cookies_strs}
+    cookies_dict = {}
+    for i in cookies_strs:
+        item_list = i.split('=')
+        if len(item_list) > 1:
+            d = {item_list[0].lower(): item_list[1]}
+            cookies_dict.update(d)
+        elif len(item_list) == 1:
+            d = {item_list[0].lower(): ""}
+            cookies_dict.update(d)
+    #cookies_dict = {i.split('=')[0].lower():i.split('=')[1] for i in cookies_strs}
 
     return cookies_dict
 
@@ -368,11 +379,7 @@ def get_credential():
     # 获取cookies
     if plugin_config.blrec_url:
         cookies = get_cookies(plugin_config.blrec_url, plugin_config.blrec_user, plugin_config.blrec_passwd)
-        credential = Credential(
-            sessdata=cookies['sessdata'], 
-            bili_jct=cookies['bili_jct'], 
-            dedeuserid=cookies['dedeuserid']
-            )
+        credential = Credential.from_cookies(cookies)
     else:
         credential = Credential()
 
@@ -383,6 +390,11 @@ def get_credential():
 async def send_admin(message, listen_type="dynamic"):
     '给订阅了动态的管理员发送报错信息'
     from ..database import DB as db
+    global last_msg
+    if message == last_msg:
+        return
+    else:
+        last_msg = message
     try:
         push_list = await db.get_push_list(-1, listen_type)
         for sets in push_list:
