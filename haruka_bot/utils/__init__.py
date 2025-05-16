@@ -360,7 +360,7 @@ async def get_cookies(blrec_url: str, blrec_user="", blrec_passwd=""):
         async with session.request(**kwargs) as res:
             res_json = await res.json()
     # res_json = response.json()
-    #print(res_json)
+    logger.debug(f"res from blrec: {res_json}")
     cookies_str = res_json['header']['cookie']
 
     # 分割参数
@@ -387,9 +387,11 @@ async def get_credential():
     # 获取cookies
     if plugin_config.blrec_url:
         cookies = await get_cookies(plugin_config.blrec_url, plugin_config.blrec_user, plugin_config.blrec_passwd)
+        logger.debug(f"Cookies: {cookies}")
         if not cookies:
+            logger.warning("No Cookies.")
             return None
-        credential = Credential.from_cookies(cookies)
+        credential = Credential(**cookies)
     else:
         credential = Credential()
 
@@ -415,10 +417,8 @@ async def send_admin(message, listen_type="dynamic"):
                 message=message,
                 at=bool(sets.at) and plugin_config.haruka_dynamic_at,
             )
-    except:
-        exc_list = traceback.format_exception()
-        # exc_str = functools.reduce(lambda x,y:x+y, exc_list)
-        exc_str = "".join(exc_list)
+    except Exception as e:
+        exc_str = traceback.format_exc()
         logger.error(f"爬取动态失败：{exc_str}")
         # send_admin(f"爬取动态失败：{exc_str}")
 

@@ -145,9 +145,9 @@ async def get_latest_dynamic(uid, credential):
     #page = await u.get_dynamics(offset=offset)
     try:
         # 抓动态
-        page = await u.get_dynamics_new(offset=offset)
-    except Exception:
         page = await u.get_dynamics(offset=offset)
+    except Exception:
+        page = await u.get_dynamics_new(offset=offset)
         '''# 刷新cookies
         if await AuthData.auth.check_refresh():
             await AuthData.auth.refresh()
@@ -160,11 +160,13 @@ async def get_latest_dynamic(uid, credential):
 
         '''
 
-    if page['cards'] is not None:
+    if page.get('cards', ''):
         # 若存在 cards 字段（即动态数据），则将该字段列表扩展到 dynamics
         #print(page)
         dynamics.extend(page['cards'])
     else:
+        logger.debug(f"credential for fetching dynamics: {credential}")
+        logger.debug(page)
         logger.error("抓取动态数据为空")
         
     return dynamics

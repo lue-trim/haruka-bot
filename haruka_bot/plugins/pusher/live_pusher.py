@@ -28,7 +28,7 @@ async def live_sched():
 
         try:
             # 检查有没有新消息
-            msg = get_blrec_msg()
+            msg = await get_blrec_msg()
             if msg:
                 await send_admin(message=msg, listen_type="live")
         except Exception as e:
@@ -90,7 +90,7 @@ async def live_sched():
             )
         await db.update_user(int(uid), name)
 
-def get_blrec_msg():
+async def get_blrec_msg():
     '间接获取blrec webhook信息'
     # import requests
     # from requests.auth import HTTPBasicAuth
