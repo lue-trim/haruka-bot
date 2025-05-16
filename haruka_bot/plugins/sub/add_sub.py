@@ -71,11 +71,11 @@ async def _(event: MessageEvent, uid: str = ArgPlainText("uid")):
 
 async def get_user_info(uid):
     '获取用户详情(容易被风控)'
-    u = user.User(uid=uid, credential=get_credential())
+    u = user.User(uid=uid, credential=await get_credential())
     return await u.get_user_info()
 
 async def get_latest_dynamic(uid):
-    u = user.User(uid=uid, credential=get_credential())
+    u = user.User(uid=uid, credential=await get_credential())
     # 用于记录下一次起点
     offset = 0
     

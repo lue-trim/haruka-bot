@@ -9,8 +9,7 @@
 - 在`.env.prod`中设置`MESSENGER_URL`参数即可指定从messenger获取推送消息  
 - messenger的具体设置方法参见[README](https://github.com/lue-trim/rec-messenger/README.md)
 ## Python 环境(Python 3.10已测试，其他版本请自测)
-> 使用前请注意把haruka-bot的路径改为仓库的本地路径
-目前的requirements是这样的:  
+目前的pip requirements是这样的:  
 ```
 aiohttp==3.8.6
 aiosignal==1.3.2
@@ -36,7 +35,6 @@ frozenlist==1.6.0
 greenlet==3.2.1
 grpcio==1.71.0
 h11==0.16.0
-haruka-bot @ file:///home/admin/Apps/haruka-bot
 httpcore==1.0.9
 httptools==0.6.4
 httpx==0.27.2
@@ -83,6 +81,9 @@ watchfiles==1.0.5
 websockets==15.0.1
 yarl==1.18.3
 ```
+1. 保存以上内容到txt文件
+1. 之后使用`pip install -r xxx.txt`安装依赖
+1. 在本仓库中，使用`pip install . --no-deps`安装haruka-bot
 
 ---
 [![HarukaBot](https://socialify.git.ci/SK-415/HarukaBot/image?description=1&font=Source%20Code%20Pro&forks=1&issues=1&language=1&logo=https%3A%2F%2Fraw.githubusercontent.com%2FSK-415%2FHarukaBot%2Fmaster%2Fdocs%2F.vuepress%2Fpublic%2Flogo.png&owner=1&pattern=Charlie%20Brown&stargazers=1&theme=Dark)](https://haruka-bot.sk415.icu/)

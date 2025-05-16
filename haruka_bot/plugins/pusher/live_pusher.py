@@ -8,6 +8,7 @@ from ...config import plugin_config
 from ...database import DB as db
 from ...utils import PROXIES, safe_send, scheduler, calc_time_total, send_admin
 import functools, traceback
+from aiohttp import BasicAuth, ClientSession
 
 status = {}
 live_time = {}
@@ -91,8 +92,8 @@ async def live_sched():
 
 def get_blrec_msg():
     '间接获取blrec webhook信息'
-    import requests
-    from requests.auth import HTTPBasicAuth
+    # import requests
+    # from requests.auth import HTTPBasicAuth
     # 获取参数
     url = getattr(plugin_config, "messenger_url", "")
     blrec_user = getattr(plugin_config, "blrec_user", "")
@@ -109,8 +110,18 @@ def get_blrec_msg():
         'type': 'all'
         }
 
-    response = requests.get(url, params=params, headers=headers, auth=HTTPBasicAuth(username=blrec_user, password=blrec_passwd))
-    res_json = response.json()
+    # response = requests.get(url, params=params, headers=headers, auth=HTTPBasicAuth(username=blrec_user, password=blrec_passwd))
+    # res_json = response.json()
+    async with ClientSession() as session:
+        kwargs = {
+            'url': url,
+            'method': 'get',
+            'params': params,
+            'headers': headers,
+            'auth': BasicAuth(login=blrec_user, password=blrec_passwd),
+        }
+        async with session.request(**kwargs) as res:
+            res_json = await res.json()
     #print(res_json)
     msg = res_json['message']
     return msg

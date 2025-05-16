@@ -38,7 +38,7 @@ async def dy_sched():
     logger.debug(f"爬取动态 {name}（{uid}）")
     try:
         # 获取cookies
-        credential = get_credential()
+        credential = await get_credential()
         # 获取 UP 最新动态列表
         dynamics = await get_latest_dynamic(uid, credential)
 

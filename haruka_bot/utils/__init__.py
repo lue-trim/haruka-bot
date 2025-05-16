@@ -34,6 +34,7 @@ require("nonebot_plugin_guild_patch")
 from nonebot_plugin_guild_patch import ChannelDestroyedNoticeEvent, GuildMessageEvent  # noqa
 
 import traceback, functools
+from aiohttp import ClientSession, BasicAuth
 
 last_msg = ""
 
@@ -322,24 +323,22 @@ def on_command(cmd, *args, **kwargs):
     return _on_command(plugin_config.haruka_command_prefix + cmd, *args, **kwargs)
 
 
-def get_auth():
-    '读取cookies并建立auth'
-    import http.cookiejar, requests.utils
-    import requests, json
-    # 读取cookies
-    session = requests.Session()
-    session.cookies = http.cookiejar.LWPCookieJar()
-    session.cookies.load(filename="/root/Apps/bilibiliLogin/cookies.txt", ignore_discard=True, ignore_expires=True)
-    cookies_dict = requests.utils.dict_from_cookiejar(session.cookies)
+# def get_auth():
+#     '读取cookies并建立auth'
+#     import http.cookiejar, requests.utils
+#     import requests, json
+#     # 读取cookies
+#     session = requests.Session()
+#     session.cookies = http.cookiejar.LWPCookieJar()
+#     session.cookies.load(filename="/root/Apps/bilibiliLogin/cookies.txt", ignore_discard=True, ignore_expires=True)
+#     cookies_dict = requests.utils.dict_from_cookiejar(session.cookies)
 
-    # 读取login data
-    json.load(filename="/root/Apps/bilibiliLogin/loginData.json", encoding='utf-8')
+#     # 读取login data
+#     json.load(filename="/root/Apps/bilibiliLogin/loginData.json", encoding='utf-8')
 
 ### 用户验证相关
-def get_cookies(blrec_url: str, blrec_user="", blrec_passwd=""):
+async def get_cookies(blrec_url: str, blrec_user="", blrec_passwd=""):
     '从blrec抓取cookies'    
-    import requests
-    from requests.auth import HTTPBasicAuth
     # 通过api获取
     url = f"{blrec_url}/api/v1/settings"
     headers = {
@@ -350,8 +349,17 @@ def get_cookies(blrec_url: str, blrec_user="", blrec_passwd=""):
         'include': 'header'
         }
 
-    response = requests.get(url, params=params, headers=headers, auth=HTTPBasicAuth(username=blrec_user, password=blrec_passwd))
-    res_json = response.json()
+    async with ClientSession() as session:
+        kwargs = {
+            'url': url,
+            'method': 'get',
+            'params': params,
+            'headers': headers,
+            'auth': BasicAuth(login=blrec_user, password=blrec_passwd),
+        }
+        async with session.request(**kwargs) as res:
+            res_json = await res.json()
+    # res_json = response.json()
     #print(res_json)
     cookies_str = res_json['header']['cookie']
 
@@ -373,12 +381,14 @@ def get_cookies(blrec_url: str, blrec_user="", blrec_passwd=""):
     return cookies_dict
 
 
-def get_credential():
+async def get_credential():
     '获取认证信息'
     from bilibili_api import Credential
     # 获取cookies
     if plugin_config.blrec_url:
-        cookies = get_cookies(plugin_config.blrec_url, plugin_config.blrec_user, plugin_config.blrec_passwd)
+        cookies = await get_cookies(plugin_config.blrec_url, plugin_config.blrec_user, plugin_config.blrec_passwd)
+        if not cookies:
+            return None
         credential = Credential.from_cookies(cookies)
     else:
         credential = Credential()
