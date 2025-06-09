@@ -21,7 +21,7 @@ from ...database import dynamic_offset as offset
 #from ...database.db import AuthData
 from ...utils import get_dynamic_screenshot, safe_send, scheduler, get_credential, send_admin
 
-from bilibili_api import user, recalculate_wbi, Credentiall
+from bilibili_api import user, recalculate_wbi, Credential
 
 async def dy_sched():
     """动态推送"""
