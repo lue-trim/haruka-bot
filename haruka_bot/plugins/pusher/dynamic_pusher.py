@@ -21,7 +21,7 @@ from ...database import dynamic_offset as offset
 #from ...database.db import AuthData
 from ...utils import get_dynamic_screenshot, safe_send, scheduler, get_credential, send_admin
 
-from bilibili_api import user, sync, Credential
+from bilibili_api import user, recalculate_wbi, Credentiall
 
 async def dy_sched():
     """动态推送"""
@@ -141,13 +141,23 @@ async def get_latest_dynamic(uid, credential):
     
     # 用于存储所有动态
     dynamics = []
-
-    #page = await u.get_dynamics(offset=offset)
     try:
-        # 抓动态
+        # 获取新wbi
+        recalculate_wbi()
         page = await u.get_dynamics(offset=offset)
+        assert page.get('cards', None) is not None
     except Exception:
+        # 试试新的API
+        await asyncio.sleep(2)
         page = await u.get_dynamics_new(offset=offset)
+        if page.get('cards', None) is None:
+            raise Exception("抓取动态尝试失败")
+        else:
+            dynamics.extend(page['cards'])
+    else:
+        # 若存在 cards 字段（即动态数据），则将该字段列表扩展到 dynamics
+        dynamics.extend(page['cards'])
+
         '''# 刷新cookies
         if await AuthData.auth.check_refresh():
             await AuthData.auth.refresh()
@@ -157,18 +167,8 @@ async def get_latest_dynamic(uid, credential):
                 "ac_time_value": AuthData.auth.ac_time_value,
                 "dedeuserid": AuthData.auth.dedeuserid,
             })
-
         '''
 
-    if page.get('cards', ''):
-        # 若存在 cards 字段（即动态数据），则将该字段列表扩展到 dynamics
-        #print(page)
-        dynamics.extend(page['cards'])
-    else:
-        logger.debug(f"credential for fetching dynamics: {credential}")
-        logger.debug(page)
-        logger.error("抓取动态数据为空")
-        
     return dynamics
 
 def get_dynamic_info(dynamic: dict):
