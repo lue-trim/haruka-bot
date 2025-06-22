@@ -358,7 +358,7 @@ async def get_cookies(blrec_url: str, blrec_user="", blrec_passwd=""):
             'auth': BasicAuth(login=blrec_user, password=blrec_passwd),
         }
         async with session.request(**kwargs) as res:
-            res_json = await res.json()
+            res_json = await res.json(content_type=None)
     # res_json = response.json()
     logger.debug(f"res from blrec: {res_json}")
     cookies_str = res_json['header']['cookie']
