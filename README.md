@@ -8,82 +8,11 @@
 在消息列表中订阅“-1”即可接收blrec后台发送的上下播、录播异常、空间不足等通知（需要使用[rec-messenger](https://github.com/lue-trim/rec-messenger)作为中转）  
 - 在`.env.prod`中设置`MESSENGER_URL`参数即可指定从messenger获取推送消息  
 - messenger的具体设置方法参见[README](https://github.com/lue-trim/rec-messenger/README.md)
-## Python 环境(Python 3.10已测试，其他版本请自测)
-目前的pip requirements是这样的:  
+## 安装方式
+- 直接从仓库根目录安装
+```bash
+pip install .
 ```
-aiohttp==3.8.6
-aiosignal==1.3.2
-aiosqlite==0.21.0
-anyio==4.9.0
-APScheduler==3.11.0
-async-timeout==4.0.3
-asyncpg==0.28.0
-attrs==25.3.0
-aunly-captcha-solver==0.1.3
-beautifulsoup4==4.13.4
-bilibili-api-python==17.1.4
-bilireq==0.2.13
-Brotli==1.1.0
-certifi==2025.4.26
-chardet==4.0.0
-charset-normalizer==3.4.1
-click==8.1.8
-colorama==0.4.6
-exceptiongroup==1.2.2
-fastapi==0.115.12
-frozenlist==1.6.0
-greenlet==3.2.1
-grpcio==1.71.0
-h11==0.16.0
-httpcore==1.0.9
-httptools==0.6.4
-httpx==0.27.2
-idna==3.10
-iso8601==2.1.0
-loguru==0.7.3
-lxml==5.3.2
-msgpack==1.1.0
-multidict==6.4.3
-nest-asyncio==1.5.9
-nonebot-adapter-onebot==2.4.6
-nonebot-plugin-apscheduler==0.5.0
-nonebot-plugin-guild-patch==0.2.3
-nonebot2==2.4.2
-packaging==25.0
-pillow==11.1.0
-playwright==1.51.0
-propcache==0.3.1
-protobuf==6.30.2
-pycryptodome==3.22.0
-pycryptodomex==3.21.0
-pydantic==1.10.22
-pyee==12.1.1
-pygtrie==2.5.0
-PyJWT==2.10.1
-pypika-tortoise==0.5.0
-python-dotenv==1.1.0
-pytz==2025.2
-PyYAML==6.0.2
-qrcode==8.1
-qrcode-terminal==0.8
-requests==2.32.3
-sniffio==1.3.1
-soupsieve==2.7
-starlette==0.46.2
-tomli==2.2.1
-tortoise-orm==0.25.0
-typing_extensions==4.13.2
-tzlocal==5.3.1
-urllib3==1.26.20
-uvicorn==0.34.2
-uvloop==0.21.0
-watchfiles==1.0.5
-websockets==15.0.1
-yarl==1.18.3
-```
-1. 保存以上内容到txt文件
-1. 之后使用`pip install -r xxx.txt`安装依赖
-1. 在本仓库中，使用`pip install . --no-deps`安装haruka-bot
 
 ---
 [![HarukaBot](https://socialify.git.ci/SK-415/HarukaBot/image?description=1&font=Source%20Code%20Pro&forks=1&issues=1&language=1&logo=https%3A%2F%2Fraw.githubusercontent.com%2FSK-415%2FHarukaBot%2Fmaster%2Fdocs%2F.vuepress%2Fpublic%2Flogo.png&owner=1&pattern=Charlie%20Brown&stargazers=1&theme=Dark)](https://haruka-bot.sk415.icu/)

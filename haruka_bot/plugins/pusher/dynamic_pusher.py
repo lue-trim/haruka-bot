@@ -44,7 +44,10 @@ async def dy_sched():
 
     except Exception as e:
         logger.error(f"爬取动态失败：{traceback.format_exc()}")
-        await send_admin(f"爬取动态失败：{traceback.format_exc()}")
+        await send_admin(f"""爬取动态失败：
+        ```
+        {traceback.format_exc()}
+        ```""")
         return
 
     if not dynamics:  # 没发过动态
@@ -74,7 +77,10 @@ async def dy_sched():
             images = res['images']
         except Exception as e:
             logger.error(f"加载动态卡片时出现问题：{traceback.format_exc()}")
-            await send_admin(f"加载动态卡片时出现问题：{traceback.format_exc()}")
+            await send_admin(f"""加载动态卡片时出现问题：
+            ```
+            {traceback.format_exc()}
+            ```""")
             continue
 
         if dynamic_id > offset[uid]:
@@ -105,14 +111,14 @@ async def dy_sched():
                 DynamicType.music: "发布了新音频",
             }'''
             message = (
-                f"{name}{dtype}：\n"
+                f"- {name}{dtype}：\n"
                 #+ str(f"动态图片可能截图异常：{err}\n" if err else "")
                 #+ MessageSegment.image(image)
                 #+ f"\n{url}"
-                + f"{title}\n"
+                + f"# {title}\n"
                 + f"{description}\n"
-                + f"发布时间：{upload_time}\n"
-                + f"图片/分P数量：{images}\n"
+                + f"> **发布时间**: {upload_time}\n"
+                + f"> **图片/分P数量**: {images}\n"
             )
 
             # 合规性处理（去除消息中的链接）
@@ -144,12 +150,12 @@ async def get_latest_dynamic(uid, credential):
     try:
         # 获取新wbi
         recalculate_wbi()
-        page = await u.get_dynamics(offset=offset)
+        page = await u.get_dynamics_new(offset=offset)
         assert page.get('cards', None) is not None
     except Exception:
         # 试试新的API
         await asyncio.sleep(2)
-        page = await u.get_dynamics_new(offset=offset)
+        page = await u.get_dynamics(offset=offset)
         if page.get('cards', None) is None:
             raise Exception("抓取动态尝试失败")
         else:

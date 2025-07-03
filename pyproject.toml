@@ -16,6 +16,7 @@ dependencies = [
     "pydantic>=1.10.9, <=2.0",
     "python-dotenv>=1.0.0",
     "tortoise-orm[asyncpg]>=0.19.3",
+    "bilibili-api-python>=17.3.0, <17.4",
     "bilireq>=0.2.6",
     "packaging>=23.1",
     "nonebot-plugin-guild-patch>=0.2.3",
