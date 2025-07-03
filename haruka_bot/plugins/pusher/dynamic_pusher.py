@@ -112,21 +112,28 @@ async def dy_sched():
                 DynamicType.article: "发布了新专栏",
                 DynamicType.music: "发布了新音频",
             }'''
-            message = (
-                f"{name}{dtype}: \n"
-                + "---\n"
-                #+ str(f"动态图片可能截图异常：{err}\n" if err else "")
-                #+ MessageSegment.image(image)
-                #+ f"\n{url}"
-                + f"**{title}**\n"
-                + f"{description}\n"
-                + f"> **发布时间**: {upload_time}\n"
-                + f"> **图片/分P数量**: {images}\n"
-            )
+            # message = (
+            #     f"{name}{dtype}: \n"
+            #     + "---\n"
+            #     #+ str(f"动态图片可能截图异常：{err}\n" if err else "")
+            #     #+ MessageSegment.image(image)
+            #     #+ f"\n{url}"
+            #     + f"**{title}**\n" if title else ""
+            #     + f"{description}\n"
+            #     + f"> **发布时间**: {upload_time}\n"
+            #     + f"> **图片/分P数量**: {images}\n"
+            # )
+            message = f"""---
+{dtype} - {name}
+---
+**{title}**
+{description}
+> 时间: {upload_time}
+> 图片/分P数量: {images}"""
 
             # 合规性处理（去除消息中的链接）
-            sr = re.compile(r"\b((?:https?|http):\/\/)?[\w\-_]+\.[\w\-_\.]+\b")
-            message = re.sub(sr, "<url>", message)
+            # sr = re.compile(r"\b((?:https?|http):\/\/)?[\w\-_]+\.[\w\-_\.]+\b")
+            # message = re.sub(sr, "<url>", message)
 
             push_list = await db.get_push_list(uid, "dynamic")
             for sets in push_list:
@@ -187,7 +194,7 @@ def get_dynamic_info(dynamic: dict):
 
     # 对不一定存在的项目初始化
     images = 0
-    title = ""
+    title = " "
     '''if dtype < 8:
         id = dynamic['desc']['dynamic_id']
     else:
@@ -195,13 +202,13 @@ def get_dynamic_info(dynamic: dict):
 
     if dtype == 1:
         # 转发
-        dtype = "转发了一条动态"
+        dtype = "转发"
         name = card['user']['uname']
         content = card['item']['content']
         upload_timestamp = dynamic['desc']['timestamp']
     elif dtype == 2:
         # 图文动态
-        dtype = "更新了一条图文动态"
+        dtype = "图文动态"
         name = card['user']['name']
         # title = card['item']['title'] # TODO: 这个title到底是从哪里抓出来的啊。。
         content = card['item']['description']
@@ -209,13 +216,13 @@ def get_dynamic_info(dynamic: dict):
         images = card['item']['pictures_count']
     elif dtype == 4:
         # 文字动态
-        dtype = "更新了一条纯文字动态"
+        dtype = "文字动态"
         name = card['user']['uname']
         content = card['item']['content']
         upload_timestamp = dynamic['desc']['timestamp']
     elif dtype == 8:
         # 投稿视频
-        dtype = "发布了一个新视频"
+        dtype = "视频发布"
         name = card['owner']['name']
         content = card['desc']
         upload_timestamp = card['pubdate']
@@ -223,14 +230,14 @@ def get_dynamic_info(dynamic: dict):
         images = card['videos']
     elif dtype == 64:
         # 投稿专栏
-        dtype = "发布了一篇专栏"
+        dtype = "专栏发布"
         name = card['author']['name']
         content = card['summary']
         upload_timestamp = card['publish_time']
         title = card['title']
     elif dtype == 256:
         # 投稿音频
-        dtype = "发布了一段音频"
+        dtype = "音频发布"
         name = card['upper']
         content = card['intro']
         upload_timestamp = card['ctime'] // 1000 # 音频的时间戳多3个0
