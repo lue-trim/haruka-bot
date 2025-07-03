@@ -45,6 +45,7 @@ async def dy_sched():
     except Exception as e:
         logger.error(f"爬取动态失败：{traceback.format_exc()}")
         await send_admin(f"""爬取动态失败：
+        ---
         ```
         {traceback.format_exc()}
         ```""")
@@ -78,6 +79,7 @@ async def dy_sched():
         except Exception as e:
             logger.error(f"加载动态卡片时出现问题：{traceback.format_exc()}")
             await send_admin(f"""加载动态卡片时出现问题：
+            ---
             ```
             {traceback.format_exc()}
             ```""")
@@ -111,11 +113,12 @@ async def dy_sched():
                 DynamicType.music: "发布了新音频",
             }'''
             message = (
-                f"- {name}{dtype}：\n"
+                f"{name}{dtype}: \n"
+                + "---\n"
                 #+ str(f"动态图片可能截图异常：{err}\n" if err else "")
                 #+ MessageSegment.image(image)
                 #+ f"\n{url}"
-                + f"# {title}\n"
+                + f"**{title}**\n"
                 + f"{description}\n"
                 + f"> **发布时间**: {upload_time}\n"
                 + f"> **图片/分P数量**: {images}\n"
