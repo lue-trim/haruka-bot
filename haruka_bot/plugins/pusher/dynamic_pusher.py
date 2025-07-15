@@ -123,11 +123,12 @@ async def dy_sched():
             #     + f"> **发布时间**: {upload_time}\n"
             #     + f"> **图片/分P数量**: {images}\n"
             # )
-            message = f"""---
+            message = f"""
 {dtype} - {name}
 ---
 **{title}**
 {description}
+---
 > 时间: {upload_time}
 > 图片/分P数量: {images}"""
 
@@ -199,6 +200,8 @@ def get_dynamic_info(dynamic: dict):
         id = dynamic['desc']['dynamic_id']
     else:
         id = -1'''
+    # upload_timestamp = datetime.now().timestamp()
+    upload_timestamp = 0
 
     if dtype == 1:
         # 转发
@@ -242,6 +245,14 @@ def get_dynamic_info(dynamic: dict):
         content = card['intro']
         upload_timestamp = card['ctime'] // 1000 # 音频的时间戳多3个0
         title = card['title']
+    elif dtype == 2048:
+        # 充电动态
+        dtype = "充电动态"
+        name = card['user']['uname']
+        content = card['vest']['content']
+        title = card['sketch']['title']
+    else:
+        raise Exception(f"Unknown dtype {dtype}: {card}")
 
     upload_time = datetime.fromtimestamp(upload_timestamp).strftime(r"%Y/%m/%d %H:%M:%S")
     return {
